@@ -16,36 +16,32 @@
         <div style="width: 100%;">
             <canvas id="canvas" width=500 height=500 style="border:2px dotted"></canvas>
         </div>
-        <button onclick="convex()"> Display ConvexHull </button>
+        <button onclick="Module.slowConvex()"> Display ConvexHull </button>
+        <button onclick="Module.randomPoints(100)"> Generate Random Points </button>
+        <button onclick="clearCanvas()"> Clear </button>
     </body>
     <script type="text/javascript">
         document.getElementById("canvas").addEventListener("click", getPoint);
        
-        function convex() {
-            var x = Module.slowConvex();
+        function clearCanvas() {
+            document.getElementById('canvas').getContext('2d').clearRect(0, 0, 500, 500);
+            Module.clearPoints();
         }
 
         function getPoint(event) {
-				var canvas = document.getElementById('canvas');
-				var x = event.clientX - canvas.getBoundingClientRect().left;
-				var y = event.clientY - canvas.getBoundingClientRect().top;
+            var canvas = document.getElementById('canvas');
+            var x = event.clientX - canvas.getBoundingClientRect().left - 1.5;
+            var y = event.clientY - canvas.getBoundingClientRect().top - 2.5;
 
 			if (canvas.getContext) {
-					var context = canvas.getContext('2d');
-					context.beginPath();
-					context.arc(x + 0.5, y + 0.5, 3, 0, Math.PI * 2, true);
-					context.fillStyle = "#ff2626";
-					context.fill();
-                }
+                var context = canvas.getContext('2d');
+                context.beginPath();
+                context.arc(x, y, 3, 0, Math.PI * 2, true);
+                context.fillStyle = "#ff2626";
+                context.fill();
+            }
+            console.log(x, y);
             Module.addPoint(x, y);
-        }
-
-        function jsdrawPoint(x ,y) {
-            var context = document.getElementById("canvas").getContext("2d");
-            context.beginPath();
-            context.arc(x + 10, y + 10, 3, 0, Math.PI * 2, true);
-            context.fillStyle = "black";
-            context.fill();
         }
 
     </script>

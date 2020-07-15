@@ -680,8 +680,8 @@ var wasmMemory;
 // In the wasm backend, we polyfill the WebAssembly object,
 // so this creates a (non-native-wasm) table for us.
 var wasmTable = new WebAssembly.Table({
-  'initial': 37,
-  'maximum': 37 + 0,
+  'initial': 40,
+  'maximum': 40 + 0,
   'element': 'anyfunc'
 });
 
@@ -1300,11 +1300,11 @@ function updateGlobalBufferAndViews(buf) {
 }
 
 var STATIC_BASE = 1024,
-    STACK_BASE = 5248128,
+    STACK_BASE = 5248160,
     STACKTOP = STACK_BASE,
-    STACK_MAX = 5248,
-    DYNAMIC_BASE = 5248128,
-    DYNAMICTOP_PTR = 5088;
+    STACK_MAX = 5280,
+    DYNAMIC_BASE = 5248160,
+    DYNAMICTOP_PTR = 5120;
 
 assert(STACK_BASE % 16 === 0, 'stack must start aligned');
 assert(DYNAMIC_BASE % 16 === 0, 'heap must start aligned');
@@ -1883,11 +1883,11 @@ var ASM_CONSTS = {
   
 };
 function drawLine(sx,sy,ex,ey){ var ctx = document.getElementById("canvas").getContext("2d"); ctx.beginPath(); ctx.lineWidth = 1; ctx.strokeStyle = "blue"; ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke(); }
-function drawPoint(x,y){ var ctx = document.getElementById("canvas").getContext("2d"); ctx.beginPath(); ctx.arc(x + 1.5, y + 1.5, 3, 0, Math.PI * 2, true); ctx.fillStyle = "black"; ctx.fill(); }
+function drawPoint(x,y){ var ctx = document.getElementById("canvas").getContext("2d"); ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2, true); ctx.fillStyle = "red"; ctx.fill(); }
 
 
 
-// STATICTOP = STATIC_BASE + 4224;
+// STATICTOP = STATIC_BASE + 4256;
 /* global initializers */  __ATINIT__.push({ func: function() { ___wasm_call_ctors() } });
 
 
@@ -2942,7 +2942,7 @@ function drawPoint(x,y){ var ctx = document.getElementById("canvas").getContext(
     }
 
   function _emscripten_get_sbrk_ptr() {
-      return 5088;
+      return 5120;
     }
 
   function _emscripten_memcpy_big(dest, src, num) {
@@ -3049,10 +3049,10 @@ var dynCall_vi = Module["dynCall_vi"] = createExportWrapper("dynCall_vi");
 var dynCall_ii = Module["dynCall_ii"] = createExportWrapper("dynCall_ii");
 
 /** @type {function(...*):?} */
-var dynCall_vii = Module["dynCall_vii"] = createExportWrapper("dynCall_vii");
+var dynCall_v = Module["dynCall_v"] = createExportWrapper("dynCall_v");
 
 /** @type {function(...*):?} */
-var dynCall_v = Module["dynCall_v"] = createExportWrapper("dynCall_v");
+var dynCall_vii = Module["dynCall_vii"] = createExportWrapper("dynCall_vii");
 
 /** @type {function(...*):?} */
 var dynCall_viii = Module["dynCall_viii"] = createExportWrapper("dynCall_viii");

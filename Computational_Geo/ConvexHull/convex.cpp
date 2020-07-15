@@ -2,6 +2,7 @@
 #include <vector>
 #include <unordered_map>
 #include <iostream>
+#include <stdlib.h>
 
 #include <thread>
 #include <chrono>
@@ -25,8 +26,8 @@ std::vector< Point > points(0);
 EM_JS(void, drawPoint, (int x, int y), {
     var ctx = document.getElementById("canvas").getContext("2d");
     ctx.beginPath();
-    ctx.arc(x + 1.5, y + 1.5, 3, 0, Math.PI * 2, true);
-    ctx.fillStyle = "black";
+    ctx.arc(x, y, 3, 0, Math.PI * 2, true);
+    ctx.fillStyle = "red";
     ctx.fill();
 });
 
@@ -105,9 +106,24 @@ void addPoint(int x, int y) {
     points.push_back( Point(x, y) );
 }
 
+void randomPoints(int n) {
+    for (int i = 0; i < n; i++) {
+        int x = rand() % 400 + 50;
+        int y = rand() % 400 + 50;
+        drawPoint(x, y);
+        addPoint(x, y);
+    }
+}
+
+void clearPoints() {
+    points.clear();
+}
+
 EMSCRIPTEN_BINDINGS(convex) {
     emscripten::function("slowConvex", &slowConvex);
     emscripten::function("addPoint", &addPoint);
+    emscripten::function("randomPoints", &randomPoints);
+    emscripten::function("clearPoints", &clearPoints);
 
     emscripten::value_object< Point > ("Point")
         .field("x", &Point::x)
