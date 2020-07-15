@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Convex Hull Algorithms</title>
+        <script type="text/javascript">
+            var Module = {
+                onRuntimeInitialized: function() {
+                    console.log("Module loaded: ", Module);
+                }
+            };
+        </script>
+        <script src="convex.js" type="text/javascript"></script>
+    </head>
+
+    <body>
+        <div style="width: 100%;">
+            <canvas id="canvas" width=500 height=500 style="border:2px dotted"></canvas>
+        </div>
+        <button onclick="convex()"> Info </button>
+    </body>
+    <script type="text/javascript">
+        document.getElementById("canvas").addEventListener("click", getPoint);
+       
+        function convex() {
+            console.log("test");
+            var x = Module.slowConvex();
+        }
+
+        function getPoint(event) {
+				var canvas = document.getElementById('canvas');
+				var x = event.clientX - canvas.getBoundingClientRect().left;
+				var y = event.clientY - canvas.getBoundingClientRect().top;
+
+			if (canvas.getContext) {
+					var context = canvas.getContext('2d');
+					context.beginPath();
+					context.arc(x + 0.5, y + 0.5, 3, 0, Math.PI * 2, true);
+					context.fillStyle = "#ff2626";
+					context.fill();
+                }
+            Module.addPoint(x, y);
+        }
+
+        function jsdrawPoint(x ,y) {
+            var context = document.getElementById("canvas").getContext("2d");
+            context.beginPath();
+            context.arc(x + 0.5, y + 0.5, 3, 0, Math.PI * 2, true);
+            context.fillStyle = "#ff2626";
+            context.fill();
+        }
+
+    </script>
+</html>
