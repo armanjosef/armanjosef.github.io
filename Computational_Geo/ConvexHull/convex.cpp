@@ -3,6 +3,9 @@
 #include <unordered_map>
 #include <iostream>
 
+#include <thread>
+#include <chrono>
+
 #include <emscripten/emscripten.h>
 #include <emscripten/bind.h>
 
@@ -19,31 +22,24 @@ typedef struct Point {
 
 std::vector< Point > points(0);
 
-EM_JS(void, drawPoint, (Point p, Point q), {
+EM_JS(void, drawPoint, (int x, int y), {
     var ctx = document.getElementById("canvas").getContext("2d");
     ctx.beginPath();
-    ctx.arc(p.x + 1.5, p.y + 1.5, 3, 0, Math.PI * 2, true);
-    ctx.fillStyle = "black";
-    ctx.fill();
-    ctx.arc(q.x + 1.5, q.y + 1.5, 3, 0, Math.PI * 2, true);
+    ctx.arc(x + 1.5, y + 1.5, 3, 0, Math.PI * 2, true);
     ctx.fillStyle = "black";
     ctx.fill();
 });
 
-EM_JS(void, drawLine, (Point p, Point q), {
+EM_JS(void, drawLine, (int sx, int sy, int ex, int ey), {
     var ctx = document.getElementById("canvas").getContext("2d");
     ctx.beginPath();
     ctx.lineWidth = 1;
     ctx.strokeStyle = "blue";
 
-    ctx.moveTo(p.x, p.y);
-    ctx.lineTo(q.x, q.y);
+    ctx.moveTo(sx, sy);
+    ctx.lineTo(ex, ey);
 
     ctx.stroke();
-});
-
-EM_JS(void, displayLog, (), {
-    console.log("slowConvex() called");
 });
 
 typedef struct hashFunc {
@@ -66,19 +62,14 @@ typedef struct Edge {
     }
 } Edge;
 
-void slowConvex() { //std::vector< Point > & points) {
+void slowConvex() {
     std::unordered_map< Point, Point, hashFunc > edges;
 
-std::cout << points.size() << std::endl;
-    displayLog();
-
     for (unsigned i = 0; i < points.size(); i++) {
-        std::cout << points[i].x << ", " << points[i].y << std::endl;
         for (unsigned j = 0; j < points.size(); j++) {
             if (i == j)
                 continue;
             bool valid = true;
-            drawPoint(points[i], points[j]);
             for (unsigned k = 0; k < points.size() && valid; k++) {
                 if (k == i || k == j)
                     continue;
@@ -95,21 +86,19 @@ std::cout << points.size() << std::endl;
             }
             if (valid) {
                 edges[ points[i] ] = points[j];
-                drawLine(points[i], points[j]);
+                drawLine(points[i].x, points[i].y, points[j].x, points[j].y);
             }
         }
     }
-
+/*
+    // Return points in clockwise order
     std::vector< Point > convexHull(edges.size());
 
     for (auto i = 0; i < edges.size(); i++) {
         convexHull[i] = (i == 0) ? edges.begin()->first : edges[ convexHull[i - 1] ];
     }
-
-    for (auto p: convexHull)
-        std::cout << "(" << p.x << ", " << p.y << ")" << std::endl;
-
-    //return convexHull;
+    return convexHull;
+*/
 }
 
 void addPoint(int x, int y) {
