@@ -33,10 +33,9 @@ EM_JS(void, drawPoint, (int x, int y), {
 
 EM_JS(void, drawLine, (int sx, int sy, int ex, int ey), {
     var ctx = document.getElementById("canvas").getContext("2d");
-    console.log("asdf");
     ctx.beginPath();
     ctx.lineWidth = 1;
-    ctx.strokeStyle = "black";
+    ctx.strokeStyle = "blue";
 
     ctx.moveTo(sx, sy);
     ctx.lineTo(ex, ey);
@@ -76,12 +75,12 @@ void slowConvex() {
                     continue;
                 int det = ( (points[k].x - points[i].x) * (points[j].y - points[i].y) - 
                             (points[k].y - points[i].y) * (points[j].x - points[i].x) );
-                if (det < 0)
+                if (det > 0)
                     valid = false;
                 if (det == 0) {
                     int dist1 = pow(points[k].x - points[i].x, 2) + pow(points[k].y - points[i].y, 2);
                     int dist2 = pow(points[j].x - points[i].x, 2) + pow(points[j].y - points[i].y, 2);
-                    if (dist2 <= dist1)
+                    if (dist2 < dist1)
                         valid = false;
                 }
             }
@@ -110,8 +109,8 @@ void randomPoints(int n) {
     for (int i = 0; i < n; i++) {
         int x = rand() % 480 + 10;
         int y = rand() % 480 + 10;
-        drawPoint(x, y);
         addPoint(x, y);
+        drawPoint(x, y);
     }
 }
 
