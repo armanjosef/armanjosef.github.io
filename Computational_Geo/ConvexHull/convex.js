@@ -1300,11 +1300,11 @@ function updateGlobalBufferAndViews(buf) {
 }
 
 var STATIC_BASE = 1024,
-    STACK_BASE = 5248160,
+    STACK_BASE = 5248192,
     STACKTOP = STACK_BASE,
-    STACK_MAX = 5280,
-    DYNAMIC_BASE = 5248160,
-    DYNAMICTOP_PTR = 5120;
+    STACK_MAX = 5312,
+    DYNAMIC_BASE = 5248192,
+    DYNAMICTOP_PTR = 5152;
 
 assert(STACK_BASE % 16 === 0, 'stack must start aligned');
 assert(DYNAMIC_BASE % 16 === 0, 'heap must start aligned');
@@ -1882,12 +1882,12 @@ var tempI64;
 var ASM_CONSTS = {
   
 };
-function drawLine(sx,sy,ex,ey){ var ctx = document.getElementById("canvas").getContext("2d"); ctx.beginPath(); ctx.lineWidth = 1; ctx.strokeStyle = "blue"; ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke(); }
+function drawLine(sx,sy,ex,ey){ var ctx = document.getElementById("canvas").getContext("2d"); console.log("asdf"); ctx.beginPath(); ctx.lineWidth = 1; ctx.strokeStyle = "black"; ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke(); }
 function drawPoint(x,y){ var ctx = document.getElementById("canvas").getContext("2d"); ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2, true); ctx.fillStyle = "red"; ctx.fill(); }
 
 
 
-// STATICTOP = STATIC_BASE + 4256;
+// STATICTOP = STATIC_BASE + 4288;
 /* global initializers */  __ATINIT__.push({ func: function() { ___wasm_call_ctors() } });
 
 
@@ -2942,7 +2942,7 @@ function drawPoint(x,y){ var ctx = document.getElementById("canvas").getContext(
     }
 
   function _emscripten_get_sbrk_ptr() {
-      return 5120;
+      return 5152;
     }
 
   function _emscripten_memcpy_big(dest, src, num) {

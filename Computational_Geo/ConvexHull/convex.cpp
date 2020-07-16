@@ -1,7 +1,7 @@
 
 #include <vector>
-#include <unordered_map>
 #include <iostream>
+#include <unordered_map>
 #include <stdlib.h>
 
 #include <thread>
@@ -33,9 +33,10 @@ EM_JS(void, drawPoint, (int x, int y), {
 
 EM_JS(void, drawLine, (int sx, int sy, int ex, int ey), {
     var ctx = document.getElementById("canvas").getContext("2d");
+    console.log("asdf");
     ctx.beginPath();
     ctx.lineWidth = 1;
-    ctx.strokeStyle = "blue";
+    ctx.strokeStyle = "black";
 
     ctx.moveTo(sx, sy);
     ctx.lineTo(ex, ey);
@@ -65,7 +66,6 @@ typedef struct Edge {
 
 void slowConvex() {
     std::unordered_map< Point, Point, hashFunc > edges;
-
     for (unsigned i = 0; i < points.size(); i++) {
         for (unsigned j = 0; j < points.size(); j++) {
             if (i == j)
