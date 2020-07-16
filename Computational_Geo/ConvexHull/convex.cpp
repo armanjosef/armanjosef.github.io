@@ -108,8 +108,8 @@ void addPoint(int x, int y) {
 
 void randomPoints(int n) {
     for (int i = 0; i < n; i++) {
-        int x = rand() % 400 + 50;
-        int y = rand() % 400 + 50;
+        int x = rand() % 480 + 10;
+        int y = rand() % 480 + 10;
         drawPoint(x, y);
         addPoint(x, y);
     }
