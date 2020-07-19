@@ -17,7 +17,7 @@
             <canvas id="canvas" width=500 height=500 style="border:2px dotted"></canvas>
         </div>
         <button onclick="js_slow()"> Display SlowConvexHull </button>
-        <button onclick="Module.randomPoints(50)"> Generate Random Points </button>
+        <button onclick="fillWithRandomPoints()"> Generate Random Points </button>
         <button onclick="clearCanvas()"> Clear </button>
     </body>
     <script type="text/javascript">
@@ -27,6 +27,11 @@
             document.getElementById('canvas').getContext('2d').clearRect(0, 0, 500, 500);
             Module.clearPoints();
             i = j = k = 0;
+        }
+
+        function fillWithRandomPoints() {
+            clearCanvas();
+            Module.randomPoints(50);
         }
 
         function getPoint(event) {
