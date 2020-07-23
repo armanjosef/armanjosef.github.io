@@ -13,29 +13,40 @@
     </head>
 
     <body>
-        <div style="width: 100%;">
-            <canvas id="canvas" width=500 height=500 style="border:2px dotted"></canvas>
+        <div style="width: 500px;float:left;">
+            <canvas id="slowConvex" width=500 height=500 style="border:2px dotted"></canvas>
+            <button onclick="js_slow()"> Display SlowConvexHull </button>
         </div>
-        <button onclick="js_slow()"> Display SlowConvexHull </button>
+        <div style="width: 500px;float:left;">
+            <canvas id="incrementalConvex" width=500 height=500 style="border:2px dotted"></canvas>
+            <button onclick="incrementalConvex()"> Display IncrementalConvexHull </button>
+        </div>
         <button onclick="fillWithRandomPoints()"> Generate Random Points </button>
         <button onclick="clearCanvas()"> Clear </button>
     </body>
     <script type="text/javascript">
-        document.getElementById("canvas").addEventListener("click", getPoint);
+        document.getElementById("slowConvex").addEventListener("click", getPoint);
+
+       // var slowConvexContext = getElementById('slowConvex').getContext('2d');
+        //var incrementalContext = getElementById('incrementalConvex').getContext('2d');
+
+        var imageData;
 
         function clearCanvas() {
-            document.getElementById('canvas').getContext('2d').clearRect(0, 0, 500, 500);
+            document.getElementById('slowConvex').getContext('2d').clearRect(0, 0, 500, 500);
+            document.getElementById('incrementalConvex').getContext('2d').clearRect(0, 0, 500, 500);
             Module.clearPoints();
             i = j = k = 0;
         }
 
         function fillWithRandomPoints() {
             clearCanvas();
-            Module.randomPoints(50);
+            Module.randomPoints(100, 500);
+            imageData = document.getElementById('incrementalConvex').getContext('2d').getImageData(0, 0, 500, 500);
         }
 
         function getPoint(event) {
-            var canvas = document.getElementById('canvas');
+            var canvas = document.getElementById('slowConvex');
             var x = event.clientX - canvas.getBoundingClientRect().left - 1.5;
             var y = event.clientY - canvas.getBoundingClientRect().top - 2.5;
 
@@ -52,7 +63,6 @@
         var i = 0;
         var j = 0;
         var k = 0;
-        var imageData;
         var req;
 
         function js_slow() {
@@ -63,43 +73,33 @@
             if (i < Module.getPoints().size())
                 requestAnimationFrame(js_slow);
         }
-/*
-        function js_slow() {
-            if (i < Module.getPoints().size()) {
-                if (j == i)
-                   j++; 
-                if (j >= Module.getPoints().size()){
-                    j = 0;
-                    i++;
-                    req = requestAnimationFrame(js_slow);
-                    return;
-                }
 
-                if (k == 0) {
-                    line = false;
-                    imageData = document.getElementById('canvas').getContext('2d').getImageData(0, 0, 500, 500);
-                    drawLine(Module.getPoints().get(i)['x'],
-                             Module.getPoints().get(i)['y'],
-                             Module.getPoints().get(j)['x'],
-                             Module.getPoints().get(j)['y']);
-                    valid = false;
-                }
-                {
-                    drawPoint(Module.getPoints().get(k)['x'], Module.getPoints().get(k)['y']);
-                    valid = Module.getDeterminant(i, j, k);
-                    k++;
-                    if (valid) 
-                        document.getElementById('canvas').getContext('2d').putImageData(imageData, 0, 0);
-                    if (valid || k >= Module.getPoints().size()) {
-                        k = 0;
-                        j++;
-                        line = true;
-                    }
-                }
-            }
-            if (i < Module.getPoints().size())
-                req = requestAnimationFrame(js_slow);
+        function clearLine(sx, sy, ex, ey) {
+
+            var ctx = document.getElementById("incrementalConvex").getContext("2d");
+            ctx.beginPath();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "white";
+
+            //ctx.setLineDash([10, 10]);
+            ctx.moveTo(sx, sy);
+            ctx.lineTo(ex, ey);
+
+            ctx.stroke();
+
+            Module.redrawPoints();
         }
-*/
+
+        function incrementalConvex() {
+            var ind = 0;
+            Module.incrementalConvexHull();
+            var interval = setInterval( function () {
+                var flag = Module.animateIncrementalConvex();
+                ind++;
+                if (flag)
+                    clearInterval(interval);
+            }, 50);
+        }
+
     </script>
 </html>

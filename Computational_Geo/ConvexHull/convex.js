@@ -680,8 +680,8 @@ var wasmMemory;
 // In the wasm backend, we polyfill the WebAssembly object,
 // so this creates a (non-native-wasm) table for us.
 var wasmTable = new WebAssembly.Table({
-  'initial': 76,
-  'maximum': 76 + 0,
+  'initial': 83,
+  'maximum': 83 + 0,
   'element': 'anyfunc'
 });
 
@@ -1300,11 +1300,11 @@ function updateGlobalBufferAndViews(buf) {
 }
 
 var STATIC_BASE = 1024,
-    STACK_BASE = 5249600,
+    STACK_BASE = 5250000,
     STACKTOP = STACK_BASE,
-    STACK_MAX = 6720,
-    DYNAMIC_BASE = 5249600,
-    DYNAMICTOP_PTR = 6560;
+    STACK_MAX = 7120,
+    DYNAMIC_BASE = 5250000,
+    DYNAMICTOP_PTR = 6960;
 
 assert(STACK_BASE % 16 === 0, 'stack must start aligned');
 assert(DYNAMIC_BASE % 16 === 0, 'heap must start aligned');
@@ -1880,20 +1880,24 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  1558: function() {imageData = document.getElementById('canvas').getContext('2d').getImageData(0, 0, 500, 500);},  
- 1652: function() {document.getElementById('canvas').getContext('2d').putImageData(imageData, 0, 0);}
+  1570: function($0, $1, $2, $3) {drawLine($0, $1, $2, $3, "blue", "incrementalConvex");},  
+ 1634: function($0, $1, $2, $3) {clearLine($0, $1, $2, $3);},  
+ 1665: function($0, $1, $2, $3) {imageData = document.getElementById('slowConvex').getContext('2d').getImageData(0, 0, 500, 500); drawLine($0, $1, $2, $3, "blue", "slowConvex");},  
+ 1814: function() {document.getElementById('slowConvex').getContext('2d').putImageData(imageData, 0, 0);},  
+ 1901: function($0, $1) {drawPoint($0, $1, "red", "slowConvex");},  
+ 1946: function($0, $1) {drawPoint($0, $1, "red", "incrementalConvex");}
 };
 
 function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
   var args = readAsmConstArgs(sigPtr, argbuf);
   return ASM_CONSTS[code].apply(null, args);
-}function drawLine(sx,sy,ex,ey){ var ctx = document.getElementById("canvas").getContext("2d"); ctx.beginPath(); ctx.lineWidth = 1; ctx.strokeStyle = "blue"; ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke(); }
-function animateLine(sx,sy,ex,ey){ requestAnimationFrame(drawLine(sx, sy, ex, ey)); }
-function drawPoint(x,y,r,g,b){ var ctx = document.getElementById("canvas").getContext("2d"); ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2, true); ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b +')'; ctx.fill(); }
+}function drawLine(sx,sy,ex,ey,color,id){ var ctx = document.getElementById(id).getContext("2d"); ctx.beginPath(); ctx.lineWidth = 1; ctx.strokeStyle = color; ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke(); }
+function animateLine(sx,sy,ex,ey){ drawLine(sx, sy, ex, ey, "blue", "incrementalConvex"); }
+function drawPoint(x,y,color,id){ var ctx = document.getElementById(id).getContext("2d"); ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2, true); ctx.fillStyle = color; ctx.fill(); }
 
 
 
-// STATICTOP = STATIC_BASE + 5696;
+// STATICTOP = STATIC_BASE + 6096;
 /* global initializers */  __ATINIT__.push({ func: function() { ___wasm_call_ctors() } });
 
 
@@ -3734,7 +3738,7 @@ function drawPoint(x,y,r,g,b){ var ctx = document.getElementById("canvas").getCo
     }
 
   function _emscripten_get_sbrk_ptr() {
-      return 6560;
+      return 6960;
     }
 
   function _emscripten_memcpy_big(dest, src, num) {
@@ -3864,19 +3868,19 @@ var dynCall_vi = Module["dynCall_vi"] = createExportWrapper("dynCall_vi");
 var dynCall_ii = Module["dynCall_ii"] = createExportWrapper("dynCall_ii");
 
 /** @type {function(...*):?} */
-var dynCall_viiii = Module["dynCall_viiii"] = createExportWrapper("dynCall_viiii");
+var dynCall_v = Module["dynCall_v"] = createExportWrapper("dynCall_v");
 
 /** @type {function(...*):?} */
-var dynCall_v = Module["dynCall_v"] = createExportWrapper("dynCall_v");
+var dynCall_i = Module["dynCall_i"] = createExportWrapper("dynCall_i");
+
+/** @type {function(...*):?} */
+var dynCall_viiii = Module["dynCall_viiii"] = createExportWrapper("dynCall_viiii");
 
 /** @type {function(...*):?} */
 var dynCall_vii = Module["dynCall_vii"] = createExportWrapper("dynCall_vii");
 
 /** @type {function(...*):?} */
-var dynCall_iiii = Module["dynCall_iiii"] = createExportWrapper("dynCall_iiii");
-
-/** @type {function(...*):?} */
-var dynCall_i = Module["dynCall_i"] = createExportWrapper("dynCall_i");
+var dynCall_iiiii = Module["dynCall_iiiii"] = createExportWrapper("dynCall_iiiii");
 
 /** @type {function(...*):?} */
 var dynCall_viii = Module["dynCall_viii"] = createExportWrapper("dynCall_viii");
@@ -3885,7 +3889,10 @@ var dynCall_viii = Module["dynCall_viii"] = createExportWrapper("dynCall_viii");
 var dynCall_iii = Module["dynCall_iii"] = createExportWrapper("dynCall_iii");
 
 /** @type {function(...*):?} */
-var dynCall_iiiii = Module["dynCall_iiiii"] = createExportWrapper("dynCall_iiiii");
+var dynCall_iiiiii = Module["dynCall_iiiiii"] = createExportWrapper("dynCall_iiiiii");
+
+/** @type {function(...*):?} */
+var dynCall_iiii = Module["dynCall_iiii"] = createExportWrapper("dynCall_iiii");
 
 /** @type {function(...*):?} */
 var dynCall_viiiiii = Module["dynCall_viiiiii"] = createExportWrapper("dynCall_viiiiii");

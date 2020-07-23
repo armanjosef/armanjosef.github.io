@@ -1,5 +1,6 @@
 
 #include <vector>
+#include <queue>
 #include <string>
 #include <iostream>
 #include <unordered_map>
@@ -22,22 +23,32 @@ typedef struct Point {
     }
 } Point;
 
-std::vector< Point > points(0);
-bool valid = false;
+typedef struct Line {
+    int sx, sy, ex, ey;
+    bool draw;
+    Line(): sx(0), sy(0), ex(0), ey(0), draw(false) {}
+    Line(Point a, Point b, bool c): sx(a.x), sy(a.y), ex(b.x), ey(b.y), draw(c) {}
+    Line(int a, int b, int c, int d, bool e): sx(a), sy(b), ex(c), ey(d), draw(e) {}
+} Line;
 
-EM_JS(void, drawPoint, (int x, int y, int r, int g, int b), {
-    var ctx = document.getElementById("canvas").getContext("2d");
+std::vector< Point > points(0);
+std::queue< Line > lines;
+bool invalid = false;
+
+EM_JS(void, drawPoint, (int x, int y, std::string color, std::string id), {
+    var ctx = document.getElementById(id).getContext("2d");
     ctx.beginPath();
     ctx.arc(x, y, 3, 0, Math.PI * 2, true);
-    ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b +')';
+    ctx.fillStyle = color;
     ctx.fill();
 });
 
-EM_JS(void, drawLine, (int sx, int sy, int ex, int ey), {
-    var ctx = document.getElementById("canvas").getContext("2d");
+EM_JS(void, drawLine, (int sx, int sy, int ex, int ey, std::string color, 
+    std::string id), {
+    var ctx = document.getElementById(id).getContext("2d");
     ctx.beginPath();
     ctx.lineWidth = 1;
-    ctx.strokeStyle = "blue";
+    ctx.strokeStyle = color;
 
     ctx.moveTo(sx, sy);
     ctx.lineTo(ex, ey);
@@ -46,7 +57,7 @@ EM_JS(void, drawLine, (int sx, int sy, int ex, int ey), {
 });
 
 EM_JS(void, animateLine, (int sx, int sy, int ex, int ey), {
-    requestAnimationFrame(drawLine(sx, sy, ex, ey));
+    drawLine(sx, sy, ex, ey, "blue", "incrementalConvex");
 });
 
 typedef struct hashFunc {
@@ -69,7 +80,35 @@ typedef struct Edge {
     }
 } Edge;
 
-void slowConvex() {
+int getDeterminant(int i, int j, int k, std::vector< Point > & tpoints = points) {
+    return ( (tpoints[k].x - tpoints[i].x) * (tpoints[j].y - tpoints[i].y) - 
+                (tpoints[k].y - tpoints[i].y) * (tpoints[j].x - tpoints[i].x) );
+}
+
+double getDistant(Point a, Point b) {
+    return pow(a.x - b.x, 2) + pow(a.y - b.y, 2);
+}
+
+void sortPointsByX() {
+    std::sort(points.begin(), points.end(),
+                [](const Point a, const Point b) { 
+                    if (a.x == b.x)
+                        return a.y < b.y;
+                    return a.x < b.x;
+                });
+}
+
+void sortPointsByRevX() {
+    std::sort(points.begin(), points.end(),
+                [](const Point a, const Point b) { return a.x > b.x; });
+}
+
+void sortPointsByY() {
+    std::sort(points.begin(), points.end(),
+                [](const Point a, const Point b) { return a.y < b.y; });
+}
+
+std::vector< Point > slowConvex() {
     std::unordered_map< Point, Point, hashFunc > edges;
     for (unsigned i = 0; i < points.size(); i++) {
         for (unsigned j = 0; j < points.size(); j++) {
@@ -92,51 +131,95 @@ void slowConvex() {
             }
             if (valid) {
                 edges[ points[i] ] = points[j];
-                drawLine(points[i].x, points[i].y, points[j].x, points[j].y);
-                //EM_ASM( requestAnimationFrame(function () {drawLine($0, $1, $2, $3);} ), points[i].x, points[i].y, points[j].x, points[j].y);
-                //drawLine(points[i].x, points[i].y, points[j].x, points[j].y);
             }
         }
     }
-/*
+
     // Return points in clockwise order
     std::vector< Point > convexHull(edges.size());
 
     for (auto i = 0; i < edges.size(); i++) {
         convexHull[i] = (i == 0) ? edges.begin()->first : edges[ convexHull[i - 1] ];
     }
+
+
+
     return convexHull;
-*/
 }
 
-void addPoint(int x, int y) {
-    points.push_back( Point(x, y) );
-}
+std::vector< Point > incrementalConvexHull() {
+    if (points.size() < 2)
+        return points;
 
-void randomPoints(int n) {
-    for (int i = 0; i < n; i++) {
-        int x = rand() % 480 + 10;
-        int y = rand() % 480 + 10;
-        addPoint(x, y);
-        drawPoint(x, y, 255, 0, 0);
-        //EM_ASM( requestAnimationFrame(function () {drawPoint($0, $1, 255, 0, 0);} ), points[i].x, points[i].y);
-    }
-}
-
-void clearPoints() {
-    points.clear();
-}
-
-bool getDeterminant(int i, int j, int k) {
-    int det = ( (points[k].x - points[i].x) * (points[j].y - points[i].y) - 
-                (points[k].y - points[i].y) * (points[j].x - points[i].x) );
+    sortPointsByX();
     
-    return det > 0;
+    std::vector< Point > upper;
+    upper.push_back(points[0]);
+    upper.push_back(points[1]);
+    lines.push(Line(upper[0], upper[1], true));
+
+    for (unsigned i = 2; i < points.size(); i++) {
+        upper.push_back(points[i]);
+        lines.push(Line(upper[upper.size() - 2], upper.back(), true));
+        while (upper.size() > 2) {
+            int det = getDeterminant(upper.size() - 3, upper.size() - 2, upper.size() - 1, upper);
+            if (det < 0)
+                break;
+            lines.push(Line(upper[upper.size() - 2], upper.back(), false));
+            lines.push(Line(upper[upper.size() - 2], upper[upper.size() - 3], false));
+            upper[upper.size() - 2] = upper.back();
+            upper.pop_back();
+        }
+        lines.push(Line(upper[upper.size() - 2], upper.back(), true));
+    }
+
+    std::vector< Point > lower;
+    lower.push_back(points[ points.size() - 1 ]);
+    lower.push_back(points[ points.size() - 2 ]);
+
+    lines.push(Line(lower[lower.size() - 2], lower.back(), true));
+    for (int i = points.size() - 3; i >= 0; i--) {
+        lower.push_back(points[i]);
+        lines.push(Line(lower[lower.size() - 2], lower.back(), true));
+        while (lower.size() > 2) {
+            int det = getDeterminant(lower.size() - 3, lower.size() - 2, lower.size() - 1, lower);
+            if (det < 0)
+                break;
+            lines.push(Line(lower[lower.size() - 2], lower.back(), false));
+            lines.push(Line(lower[lower.size() - 2], lower[lower.size() - 3], false));
+            lower[lower.size() - 2] = lower.back();
+            lower.pop_back();
+        }
+        lines.push(Line(lower[lower.size() - 2], lower.back(), true));
+    }
+    lower.pop_back();
+    upper.insert(upper.end(), lower.begin() + 1, lower.end());
+    lines.push(Line(upper.back(), upper.front(), true));
+    return upper;
+}
+
+bool animateIncrementalConvex() {
+    if (lines.empty())
+        return true;
+
+    if (lines.front().draw) {
+        EM_ASM({
+            drawLine($0, $1, $2, $3, "blue", "incrementalConvex");
+        }, lines.front().sx, lines.front().sy, lines.front().ex, lines.front().ey);
+    }
+    else {
+        EM_ASM({
+            clearLine($0, $1, $2, $3);
+        }, lines.front().sx, lines.front().sy, lines.front().ex, lines.front().ey);
+    }
+    lines.pop();
+    return false;
 }
 
 std::vector<int> animateSlowConvex(int i, int j, int k) {
     if (j == i)
         j++;
+
     if (j >= points.size()) {
         j = 0;
         i++;
@@ -144,23 +227,24 @@ std::vector<int> animateSlowConvex(int i, int j, int k) {
     }
 
     if (k == 0) {
-        EM_ASM(
-            imageData = document.getElementById('canvas').getContext('2d').getImageData(0, 0, 500, 500);
-        );
-        drawLine(points[i].x, points[i].y, points[j].x, points[j].y);
-        valid = false;
+        EM_ASM({
+            imageData = document.getElementById('slowConvex').getContext('2d').getImageData(0, 0, 500, 500);
+            drawLine($0, $1, $2, $3, "blue", "slowConvex");
+        }, points[i].x, points[i].y, points[j].x, points[j].y);
+
+        invalid = false;
     }
 
-    valid = getDeterminant(i, j, k);
+    invalid = getDeterminant(i, j, k) > 0;
     k++;
-    
-    if (valid) {
+
+    if (invalid) {
         EM_ASM(
-            document.getElementById('canvas').getContext('2d').putImageData(imageData, 0, 0);
+            document.getElementById('slowConvex').getContext('2d').putImageData(imageData, 0, 0);
         );
     }
 
-    if (valid || k >= points.size()) {
+    if (invalid || k >= points.size()) {
         k = 0;
         j++;
     }
@@ -168,8 +252,39 @@ std::vector<int> animateSlowConvex(int i, int j, int k) {
     return std::vector<int> { i, j, k };
 }
 
+void addPoint(int x, int y) {
+    points.push_back( Point(x, y) );
+}
+
+void randomPoints(int n, int max) {
+    max -= 20;
+    for (int i = 0; i < n; i++) {
+        int x = rand() % max + 10;
+        int y = rand() % max + 10;
+        addPoint(x, y);
+        EM_ASM({drawPoint($0, $1, "red", "slowConvex");}, x, y);
+        EM_ASM({drawPoint($0, $1, "red", "incrementalConvex");}, x, y);
+    }
+}
+
+void clearPoints() {
+    points.clear();
+}
+
 std::vector< Point > getPoints() {
     return points;
+}
+
+void redrawPoints() {
+    for (auto p: points) {
+        EM_ASM({drawPoint($0, $1, "red", "slowConvex");}, p.x, p.y);
+        EM_ASM({drawPoint($0, $1, "red", "incrementalConvex");}, p.x, p.y);
+    }
+}
+
+std::vector< std::vector<int> > garbage() {
+    return std::vector< std::vector<int> > { std::vector<int> {1, 2, 3},
+            std::vector<int>{5, 6, 7} };
 }
 
 EMSCRIPTEN_BINDINGS(convex) {
@@ -184,6 +299,12 @@ EMSCRIPTEN_BINDINGS(convex) {
     emscripten::function("clearPoints", &clearPoints);
     emscripten::function("getPoints", &getPoints);
     emscripten::function("animateSlowConvex", &animateSlowConvex);
+    emscripten::function("incrementalConvexHull", &incrementalConvexHull);
+    emscripten::function("animateIncrementalConvex", &animateIncrementalConvex);
+    emscripten::function("redrawPoints", &redrawPoints);
+    emscripten::function("sortPointsByX", &sortPointsByX);
+    emscripten::function("sortPointsByRevX", &sortPointsByRevX);
+    emscripten::function("sortPointsByY", &sortPointsByY);
 
     emscripten::register_vector<int>("vector<int>");
     emscripten::register_vector<Point>("vector<Point>");
