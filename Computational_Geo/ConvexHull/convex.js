@@ -680,8 +680,8 @@ var wasmMemory;
 // In the wasm backend, we polyfill the WebAssembly object,
 // so this creates a (non-native-wasm) table for us.
 var wasmTable = new WebAssembly.Table({
-  'initial': 83,
-  'maximum': 83 + 0,
+  'initial': 84,
+  'maximum': 84 + 0,
   'element': 'anyfunc'
 });
 
@@ -1300,11 +1300,11 @@ function updateGlobalBufferAndViews(buf) {
 }
 
 var STATIC_BASE = 1024,
-    STACK_BASE = 5250000,
+    STACK_BASE = 5250016,
     STACKTOP = STACK_BASE,
-    STACK_MAX = 7120,
-    DYNAMIC_BASE = 5250000,
-    DYNAMICTOP_PTR = 6960;
+    STACK_MAX = 7136,
+    DYNAMIC_BASE = 5250016,
+    DYNAMICTOP_PTR = 6976;
 
 assert(STACK_BASE % 16 === 0, 'stack must start aligned');
 assert(DYNAMIC_BASE % 16 === 0, 'heap must start aligned');
@@ -1897,7 +1897,7 @@ function drawPoint(x,y,color,id){ var ctx = document.getElementById(id).getConte
 
 
 
-// STATICTOP = STATIC_BASE + 6096;
+// STATICTOP = STATIC_BASE + 6112;
 /* global initializers */  __ATINIT__.push({ func: function() { ___wasm_call_ctors() } });
 
 
@@ -3738,7 +3738,7 @@ function drawPoint(x,y,color,id){ var ctx = document.getElementById(id).getConte
     }
 
   function _emscripten_get_sbrk_ptr() {
-      return 6960;
+      return 6976;
     }
 
   function _emscripten_memcpy_big(dest, src, num) {

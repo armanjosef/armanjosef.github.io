@@ -89,8 +89,8 @@ double getDistant(Point a, Point b) {
     return pow(a.x - b.x, 2) + pow(a.y - b.y, 2);
 }
 
-void sortPointsByX() {
-    std::sort(points.begin(), points.end(),
+void sortPointsByX(std::vector< Point > &pts = points) {
+    std::sort(pts.begin(), pts.end(),
                 [](const Point a, const Point b) { 
                     if (a.x == b.x)
                         return a.y < b.y;
@@ -151,15 +151,16 @@ std::vector< Point > incrementalConvexHull() {
     if (points.size() < 2)
         return points;
 
-    sortPointsByX();
+    std::vector< Point > pts = points;
+    sortPointsByX(pts);
     
     std::vector< Point > upper;
-    upper.push_back(points[0]);
-    upper.push_back(points[1]);
+    upper.push_back(pts[0]);
+    upper.push_back(pts[1]);
     lines.push(Line(upper[0], upper[1], true));
 
-    for (unsigned i = 2; i < points.size(); i++) {
-        upper.push_back(points[i]);
+    for (unsigned i = 2; i < pts.size(); i++) {
+        upper.push_back(pts[i]);
         lines.push(Line(upper[upper.size() - 2], upper.back(), true));
         while (upper.size() > 2) {
             int det = getDeterminant(upper.size() - 3, upper.size() - 2, upper.size() - 1, upper);
@@ -174,12 +175,12 @@ std::vector< Point > incrementalConvexHull() {
     }
 
     std::vector< Point > lower;
-    lower.push_back(points[ points.size() - 1 ]);
-    lower.push_back(points[ points.size() - 2 ]);
+    lower.push_back(pts[ pts.size() - 1 ]);
+    lower.push_back(pts[ pts.size() - 2 ]);
 
     lines.push(Line(lower[lower.size() - 2], lower.back(), true));
-    for (int i = points.size() - 3; i >= 0; i--) {
-        lower.push_back(points[i]);
+    for (int i = pts.size() - 3; i >= 0; i--) {
+        lower.push_back(pts[i]);
         lines.push(Line(lower[lower.size() - 2], lower.back(), true));
         while (lower.size() > 2) {
             int det = getDeterminant(lower.size() - 3, lower.size() - 2, lower.size() - 1, lower);
@@ -277,7 +278,7 @@ std::vector< Point > getPoints() {
 
 void redrawPoints() {
     for (auto p: points) {
-        EM_ASM({drawPoint($0, $1, "red", "slowConvex");}, p.x, p.y);
+        //EM_ASM({drawPoint($0, $1, "red", "slowConvex");}, p.x, p.y);
         EM_ASM({drawPoint($0, $1, "red", "incrementalConvex");}, p.x, p.y);
     }
 }
